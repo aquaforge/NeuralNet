@@ -8,25 +8,33 @@
         public int SizeY => _matrix.GetLength(1);
 
 
-        public double[][] Data
+        public LinkedList<double[]> Data
         {
             get
             {
+                LinkedList<double[]> list = new();
 
-                var res = new double[SizeX][SizeY];
+
                 for (int i = 0; i < SizeX; i++)
                 {
                     var v = new double[SizeY];
                     for (int j = 0; j < SizeY; j++)
                         v[j] = _matrix[i, j];
-                    res[i] = v;
+                    list.AddLast(v);
                 }
-                return res;
-
-
-                return _matrix;
+                return list;
             }
-            //            set { _matrix = value; }
+            set
+            {
+                int x = value.Count();
+                int y = 0;
+                if (x > 0) y = value.First().Length;
+
+                _matrix = new double[x, y];
+                for (int i = 0; i < x; i++)
+                    for (int j = 0; j < y; j++)
+                        _matrix[i, j] = value.ElementAt(i)[j];
+            }
         }
 
 
@@ -38,7 +46,7 @@
         }
 
 
-        public Matrix() : this(0, 0) { }
+        public Matrix() : this(1, 1) { }
 
         public Matrix(double[,] matrix)
         {

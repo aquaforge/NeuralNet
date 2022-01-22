@@ -84,8 +84,6 @@
 
         public static Vector operator -(Vector v) => (-1) * v;
 
-
-
         public double Length => Math.Sqrt(_vector.Select(n => n * n).Sum());
 
         public Vector Normalize() => this / this.Length;

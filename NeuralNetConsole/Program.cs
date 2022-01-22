@@ -8,7 +8,12 @@ Console.WriteLine("Hello, World!");
 //string s = JsonSerializer.Serialize(v);
 //Console.WriteLine(s);
 
-Matrix matrix = new Matrix(5, 7, new Random());
-string s = JsonSerializer.Serialize(matrix);
+Matrix? matrix = new Matrix(0, 0, new Random());
+string s = JsonSerializer.Serialize(matrix, new JsonSerializerOptions() { WriteIndented = true });
+Console.WriteLine(s);
+
+matrix = JsonSerializer.Deserialize<Matrix>(s);
+s = JsonSerializer.Serialize(matrix, new JsonSerializerOptions() { WriteIndented = true });
+
 Console.WriteLine(s);
 

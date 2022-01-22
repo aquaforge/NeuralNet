@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralNetLibrary", "NeuralN
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralNetConsole", "NeuralNetConsole\NeuralNetConsole.csproj", "{0EEC702D-CDC8-496A-B530-1BE675BB777F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralNetLibraryTests", "NeuralNetLibraryTests\NeuralNetLibraryTests.csproj", "{976E41AF-F752-4F82-B8D9-08F02EB514E7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{0EEC702D-CDC8-496A-B530-1BE675BB777F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0EEC702D-CDC8-496A-B530-1BE675BB777F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0EEC702D-CDC8-496A-B530-1BE675BB777F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{976E41AF-F752-4F82-B8D9-08F02EB514E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{976E41AF-F752-4F82-B8D9-08F02EB514E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{976E41AF-F752-4F82-B8D9-08F02EB514E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{976E41AF-F752-4F82-B8D9-08F02EB514E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

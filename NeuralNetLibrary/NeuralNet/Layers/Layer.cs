@@ -88,19 +88,23 @@ namespace NeuralNetLibrary
             Vector<double> v = (outputToBe - _output).PointwisePower(2);
             return v.Sum();
         }
-        internal double NormalizedError(Vector<double> outputToBe) //sum of abs(a-b)/sum of abs(a)
-        {
-            Vector<double> v = (outputToBe - _output).PointwiseAbs();
-            double divider = outputToBe.PointwiseAbs().Sum();
-            if (divider == 0) return double.MaxValue;
-            return v.Sum() / divider;
-        }
-        public void UpdateWeights(double alpha = 0.1)
+        internal double AbsError(Vector<double> outputToBe)=>(outputToBe - _output).PointwiseAbs().Sum();
+        
+
+        public void UpdateWeights(Vector<double> outputPrev, double alpha = 0.1)
         {
             Matrix<double> delta;
+            Vector<double> v;
+            v = _error.PointwiseMultiply(GetActivationFunction().Deactivate(_input, _output));
+
+            Matrix<double> m1 = v.ToColumnMatrix();
+            Matrix<double> m2= outputPrev.ToRowMatrix();
+
             //TODO
-            //delta = alpha * _error * GetActivationFunction().Deactivate(_output) * _output;
-            //_weights += delta;
+            delta = alpha * m1 * m2;
+
+            _weights -= delta;
+
 
         }
 

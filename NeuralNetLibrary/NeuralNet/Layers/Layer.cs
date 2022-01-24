@@ -54,11 +54,11 @@ namespace NeuralNetLibrary
             ActivationType = activationType;
 
             _input = Vector<double>.Build.Dense(length);
-            _output = Vector<double>.Build.Dense(length);
-            _error = Vector<double>.Build.Dense(length);
+            _output = _input.Clone();
+            _error = _input.Clone();
 
 
-            if(weights == null)
+            if (weights == null)
                 _weights = Matrix<double>.Build.Dense(length, prevLayerLength, (i, j) => (_random.NextDouble() - 0.5));
             else
                 _weights = Matrix<double>.Build.DenseOfMatrix(weights);
@@ -83,8 +83,18 @@ namespace NeuralNetLibrary
             };
         }
 
-
-
+        internal double QuadraticError(Vector<double> outputToBe)
+        {
+            Vector<double> v = (outputToBe - _output).PointwisePower(2);
+            return v.Sum();
+        }
+        internal double NormalizedError(Vector<double> outputToBe) //sum of abs(a-b)/sum of abs(a)
+        {
+            Vector<double> v = (outputToBe - _output).PointwiseAbs();
+            double divider = outputToBe.PointwiseAbs().Sum();
+            if (divider == 0) return double.MaxValue;
+            return v.Sum() / divider;
+        }
         public void UpdateWeights(double alpha = 0.1)
         {
             Matrix<double> delta;

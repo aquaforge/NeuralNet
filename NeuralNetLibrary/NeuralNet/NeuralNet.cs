@@ -77,6 +77,17 @@ namespace NeuralNetLibrary
         }
 
 
+        public double QuadraticError(Vector<double> outputToBe)
+        {
+            return Layers.Last().QuadraticError(outputToBe);
+        }
+
+        public double NormalizedError(Vector<double> outputToBe)
+        {
+            return Layers.Last().NormalizedError(outputToBe);
+        }
+
+
         public void Train(Vector<double> input, Vector<double> outputToBe, double alpha = 0.1)
         {
             Predict(input);

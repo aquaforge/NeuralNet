@@ -7,15 +7,25 @@ NeuralNet? neuralNet;
 string s;
 Layer layer;
 
-neuralNet = new NeuralNet(new Random());
-neuralNet.AddLayer(3);
+Random random = new Random();
+neuralNet = new NeuralNet(random);
+neuralNet.AddLayer(1);
 neuralNet.AddLayer(2, ActivationTypes.SIGMOID);
-//neuralNet.AddLayer(1);
+neuralNet.AddLayer(1);
 
-var input = Vector<double>.Build.DenseOfArray(new double[] { 1, 1, -1 });
+var input = Vector<double>.Build.DenseOfArray(new double[] { 1 });
+var outputToBe = Vector<double>.Build.DenseOfArray(new double[] { 1 });
 
-var output = neuralNet.Predict(input);
-Console.WriteLine(output);
+for (int i = 0; i < 100; i++)
+{
+    input[0] = random.NextDouble();
+    outputToBe[0] = input[0];
+
+    var output = neuralNet.Predict(input);
+    Console.WriteLine($"{i:00} {outputToBe[0] - output[0]}");
+}
+
+
 
 
 s = JsonSerializer.Serialize(neuralNet, new JsonSerializerOptions() { WriteIndented = true }); ;

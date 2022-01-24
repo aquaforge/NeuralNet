@@ -56,6 +56,8 @@ namespace NeuralNetLibrary
             if (_input is null) throw new ArgumentNullException($"Net has no Layers");
             if (_input.Count != input.Count) throw new ArgumentException($"Predict vector length {input.Count},expected {_input.Count}");
 
+            Clear();
+
             _input = Vector<double>.Build.DenseOfVector(input);
             for (int i = 0; i < _layers.Count; i++)
             {
@@ -68,23 +70,9 @@ namespace NeuralNetLibrary
                 else
                     vect = _layers.ElementAt(i - 1)._input;
                 layer._input = layer._weights.Multiply(vect);
+                layer._output = layer.GetActivationFunction().Activate(layer._input);
+                //Vector<double>.Build.Dense(layer._input.Count, (k) => layer.GetActivationFunction().Activate(layer._input[k]));
 
-                IActivation activation;
-                switch (layer.ActivationType)
-                {
-                    case ActivationTypes.NO:
-                        activation = new NoActivation();
-                        break;
-                    case ActivationTypes.SIGMOID:
-                        activation = new SigmoidActivation();
-                        break;
-                    default:
-                        throw new ArgumentException($"Unknown ActivationType: [{layer.ActivationType}]");
-                        //break;
-                }
-                layer._output = Vector<double>.Build.Dense(layer._input.Count, (k) => activation.Activate(layer._input[k]));
-                //for (int k = 0; k < layer._input.Count; k++)
-                //    layer._output[k] = activation.Activate(layer._input[k]);
             }
 
             return Vector<double>.Build.DenseOfVector(_layers.Last()._output);
@@ -92,7 +80,22 @@ namespace NeuralNetLibrary
         }
 
 
-        public void Train() { }
 
+
+        public void Train(Vector<double> input, Vector<double> outputToBe, double alpha = 0.1)
+        {
+            Predict(input);
+            _layers.Last()._error = outputToBe - _layers.Last()._output;
+            for (int i = _layers.Count - 2; i >= 0; i--)
+            {
+                Layer layer = _layers.ElementAt(i);
+                Layer layerNext = _layers.ElementAt(i + 1);
+                layer._error = layerNext._weights.TransposeThisAndMultiply(layerNext._error);
+            }
+
+            for (int i = 0; i < _layers.Count; i++)
+                _layers.ElementAt(i).UpdateWeights(alpha);
+
+        }
     }
 }

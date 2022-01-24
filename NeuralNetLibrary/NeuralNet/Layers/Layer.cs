@@ -76,5 +76,37 @@ namespace NeuralNetLibrary
             _output.Clear();
             _error.Clear();
         }
+
+
+        public IActivation GetActivationFunction()
+        {
+
+            IActivation activation;
+            switch (ActivationType)
+            {
+                case ActivationTypes.NO:
+                    activation = new NoActivation();
+                    break;
+                case ActivationTypes.SIGMOID:
+                    activation = new SigmoidActivation();
+                    break;
+                default:
+                    throw new ArgumentException($"Unknown ActivationType: [{ActivationType}]");
+                    //break;
+            }
+            return activation;
+        }
+
+
+
+        public void UpdateWeights(double alpha = 0.1)
+        {
+            Matrix<double> delta;
+            //TODO
+            //delta = alpha * _error * GetActivationFunction().Deactivate(_output) * _output;
+            _weights += delta;
+
+        }
+
     }
 }

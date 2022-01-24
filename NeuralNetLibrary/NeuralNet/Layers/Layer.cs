@@ -16,7 +16,7 @@ namespace NeuralNetLibrary
         public ActivationTypes ActivationType { get; set; }
         public int Lenght => _input.Count;
 
-        public double[][]? WeightsMatrixByRows
+        public double[][] WeightsMatrixByRows
         {
             get { return _weights.ToRowArrays(); }
             set
@@ -44,30 +44,24 @@ namespace NeuralNetLibrary
             set { _error = Vector<double>.Build.DenseOfArray(value); }
         }
 
-
-
-        public static Layer GetInputLayer(int length, Random? random = null) => new(length, ActivationTypes.NO, random);
-        public static Layer GetDenseLayer(int length, ActivationTypes activationType, int prevLayerSize, Random? random = null)
-        {
-            Layer layer = new(length, activationType, random);
-            //layer._weights = Matrix<double>.Build.Dense(length, prevLayerSize, (i, j) => (layer._random.NextDouble() - 0.5));
-            layer._weights = Matrix<double>.Build.Dense(length, prevLayerSize, (i, j) => i + j + 1);
-            Console.WriteLine(layer._weights);
-            return layer;
-        }
-
         public Layer() { }
 
 
 
-        protected Layer(int length, ActivationTypes activationType, Random? random = null)
+        public Layer(int prevLayerLength, int length, ActivationTypes activationType, Random? random = null, Matrix<double>? weights = null)
         {
+            _random = random ?? new Random();
+            ActivationType = activationType;
+
             _input = Vector<double>.Build.Dense(length);
             _output = Vector<double>.Build.Dense(length);
             _error = Vector<double>.Build.Dense(length);
 
-            ActivationType = activationType;
-            _random = random ?? new Random();
+
+            if(weights == null)
+                _weights = Matrix<double>.Build.Dense(length, prevLayerLength, (i, j) => (_random.NextDouble() - 0.5));
+            else
+                _weights = Matrix<double>.Build.DenseOfMatrix(weights);
         }
 
         public void Clear()
@@ -80,21 +74,13 @@ namespace NeuralNetLibrary
 
         public IActivation GetActivationFunction()
         {
-
-            IActivation activation;
-            switch (ActivationType)
+            return ActivationType switch
             {
-                case ActivationTypes.NO:
-                    activation = new NoActivation();
-                    break;
-                case ActivationTypes.SIGMOID:
-                    activation = new SigmoidActivation();
-                    break;
-                default:
-                    throw new ArgumentException($"Unknown ActivationType: [{ActivationType}]");
-                    //break;
-            }
-            return activation;
+                ActivationTypes.NO => new NoActivation(),
+                ActivationTypes.Sigmoid => new SigmoidActivation(),
+                ActivationTypes.LeakyReLU => new LeakyReLUActivation(),
+                _ => throw new ArgumentException($"Unknown ActivationType: [{ActivationType}]"),
+            };
         }
 
 

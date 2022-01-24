@@ -3,26 +3,26 @@ using MathNet.Numerics.LinearAlgebra;
 using NeuralNetLibrary;
 using System.Text.Json;
 
+Random random = new Random();
 NeuralNet? neuralNet;
 string s;
-Layer layer;
+//Layer layer;
 
-Random random = new Random();
+
+int inputVectorSize = 1;
 neuralNet = new NeuralNet(random);
-neuralNet.AddLayer(1);
-neuralNet.AddLayer(2, ActivationTypes.SIGMOID);
-neuralNet.AddLayer(1);
+neuralNet.AddLayer(inputVectorSize);
+neuralNet.AddLayer(1, ActivationTypes.LeakyReLU);
 
-var input = Vector<double>.Build.DenseOfArray(new double[] { 1 });
-var outputToBe = Vector<double>.Build.DenseOfArray(new double[] { 1 });
-
+var input = Vector<double>.Build.DenseOfArray(new double[] { inputVectorSize });
+var outputToBe = Vector<double>.Build.DenseOfArray(new double[] { inputVectorSize });
 for (int i = 0; i < 100; i++)
 {
     input[0] = random.NextDouble();
     outputToBe[0] = input[0];
 
-    var output = neuralNet.Predict(input);
-    Console.WriteLine($"{i:00} {outputToBe[0] - output[0]}");
+    neuralNet.Train(input, outputToBe, 0.1);
+    Console.WriteLine($"{i:00} Weight={neuralNet.Layers.Last().WeightsMatrixByRows[0][0]} Error={outputToBe[0] - neuralNet.Predict(input)}");
 }
 
 
@@ -31,7 +31,7 @@ for (int i = 0; i < 100; i++)
 s = JsonSerializer.Serialize(neuralNet, new JsonSerializerOptions() { WriteIndented = true }); ;
 Console.WriteLine(s);
 
-Console.WriteLine("=====================================");
+Console.WriteLine("=================================================");
 
 neuralNet = JsonSerializer.Deserialize<NeuralNet>(s);
 s = JsonSerializer.Serialize(neuralNet, new JsonSerializerOptions() { WriteIndented = true }); ;

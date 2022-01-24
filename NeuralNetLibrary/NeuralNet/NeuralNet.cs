@@ -27,18 +27,17 @@ namespace NeuralNetLibrary
         public NeuralNet(Random random) => _random = random;
 
 
-        public void AddLayer(int size, ActivationTypes activationType = ActivationTypes.SIGMOID)
+        public void AddLayer(int lenght, ActivationTypes activationType = ActivationTypes.Sigmoid)
         {
-            int prevLayerSize = -1;
-            if (_layers.Count == 0 && InputVectorSize <= 0)
+            if (_layers.Count == 0 && InputVectorSize < 0)
             {
-                _input = Vector<double>.Build.Dense(size);
-                InputVectorSize = size;
+                _input = Vector<double>.Build.Dense(lenght);
+                InputVectorSize = lenght;
                 return;
             }
 
-            prevLayerSize = _layers.Count == 0 ? InputVectorSize : _layers.Last().Lenght;
-            _layers.AddLast(Layer.GetDenseLayer(size, activationType, prevLayerSize, _random));
+            int prevLayerLenght = _layers.Count == 0 ? InputVectorSize : _layers.Last().Lenght;
+            _layers.AddLast(new Layer(prevLayerLenght, lenght, activationType, _random));
         }
 
 
@@ -78,8 +77,6 @@ namespace NeuralNetLibrary
             return Vector<double>.Build.DenseOfVector(_layers.Last()._output);
 
         }
-
-
 
 
         public void Train(Vector<double> input, Vector<double> outputToBe, double alpha = 0.1)

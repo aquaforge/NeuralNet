@@ -1,4 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using MathNet.Numerics.LinearAlgebra;
 using NeuralNetLibrary;
 using System.Text.Json;
 
@@ -7,9 +8,15 @@ string s;
 Layer layer;
 
 neuralNet = new NeuralNet(new Random());
-neuralNet.AddLayer(3, new NoActivation());
-neuralNet.AddLayer(2, new SigmoidActivation());
-neuralNet.AddLayer(3, new SigmoidActivation());
+neuralNet.AddLayer(3);
+neuralNet.AddLayer(2, ActivationTypes.SIGMOID);
+//neuralNet.AddLayer(1);
+
+var input = Vector<double>.Build.DenseOfArray(new double[] { 1, 1, -1 });
+
+var output = neuralNet.Predict(input);
+Console.WriteLine(output);
+
 
 s = JsonSerializer.Serialize(neuralNet, new JsonSerializerOptions() { WriteIndented = true }); ;
 Console.WriteLine(s);

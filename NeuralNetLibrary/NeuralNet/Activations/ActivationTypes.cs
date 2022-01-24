@@ -2,7 +2,7 @@
 {
     public enum ActivationTypes
     {
-        NO,
+        Identity,
         Sigmoid,
         LeakyReLU
     }

@@ -3,7 +3,7 @@
 namespace NeuralNetLibrary
 {
     [Serializable]
-    public class NoActivation : Activation, IActivation
+    public class IdentityActivation : Activation, IActivation
     {
         public override double Activate(double d) => d;
         public override double Deactivate(double input, double output) => 1.0;

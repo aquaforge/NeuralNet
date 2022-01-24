@@ -76,7 +76,7 @@ namespace NeuralNetLibrary
         {
             return ActivationType switch
             {
-                ActivationTypes.NO => new NoActivation(),
+                ActivationTypes.Identity => new IdentityActivation(),
                 ActivationTypes.Sigmoid => new SigmoidActivation(),
                 ActivationTypes.LeakyReLU => new LeakyReLUActivation(),
                 _ => throw new ArgumentException($"Unknown ActivationType: [{ActivationType}]"),
@@ -90,7 +90,7 @@ namespace NeuralNetLibrary
             Matrix<double> delta;
             //TODO
             //delta = alpha * _error * GetActivationFunction().Deactivate(_output) * _output;
-            _weights += delta;
+            //_weights += delta;
 
         }
 

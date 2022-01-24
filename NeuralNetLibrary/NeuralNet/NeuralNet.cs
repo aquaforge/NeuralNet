@@ -61,7 +61,6 @@ namespace NeuralNetLibrary
             for (int i = 0; i < _layers.Count; i++)
             {
                 Layer layer = _layers.ElementAt(i);
-                //Matrix<double> m = Matrix<double>.Build.DenseOfColumnVectors(_input);
 
                 Vector<double> vect;
                 if (i == 0)
@@ -70,7 +69,6 @@ namespace NeuralNetLibrary
                     vect = _layers.ElementAt(i - 1)._input;
                 layer._input = layer._weights.Multiply(vect);
                 layer._output = layer.GetActivationFunction().Activate(layer._input);
-                //Vector<double>.Build.Dense(layer._input.Count, (k) => layer.GetActivationFunction().Activate(layer._input[k]));
 
             }
 

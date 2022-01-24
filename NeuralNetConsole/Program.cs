@@ -12,7 +12,7 @@ string s;
 int inputVectorSize = 1;
 neuralNet = new NeuralNet(random);
 neuralNet.AddLayer(inputVectorSize);
-neuralNet.AddLayer(1, ActivationTypes.LeakyReLU);
+neuralNet.AddLayer(1, ActivationTypes.Identity);
 
 var input = Vector<double>.Build.DenseOfArray(new double[] { inputVectorSize });
 var outputToBe = Vector<double>.Build.DenseOfArray(new double[] { inputVectorSize });
@@ -20,9 +20,10 @@ for (int i = 0; i < 100; i++)
 {
     input[0] = random.NextDouble();
     outputToBe[0] = input[0];
-
-    neuralNet.Train(input, outputToBe, 0.1);
-    Console.WriteLine($"{i:00} Weight={neuralNet.Layers.Last().WeightsMatrixByRows[0][0]} Error={outputToBe[0] - neuralNet.Predict(input)}");
+    neuralNet.Train(input, outputToBe, alpha: 0.1);
+    var output = neuralNet.Predict(input);
+    double error = outputToBe[0] == 0 ? double.MaxValue : 100.0 * Math.Abs(outputToBe[0] - output[0]) / outputToBe[0];
+    Console.WriteLine($"{i:00} Weight={neuralNet.Layers.Last().WeightsMatrixByRows[0][0]} Input={input[0]} Output={output[0]} Error={error:00.00}%");
 }
 
 

@@ -88,8 +88,35 @@ namespace NeuralNetLibrary
         }
 
 
+        public void TrainEpoch(Vector<double>[] inputArray, Vector<double>[] outputToBeArray, double alpha = 0.1)
+        {
+            if (inputArray == null) throw new ArgumentNullException(nameof(inputArray));
+            if (outputToBeArray == null) throw new ArgumentNullException(nameof(outputToBeArray));
+            if (inputArray.Length != outputToBeArray.Length)
+                throw new ArgumentException($"TrainEpoch in {inputArray.Length}/ToBe {outputToBeArray.Length} vectors are not equal");
+            if (inputArray.Length == 0) throw new ArgumentException("Epoch: nothing to train");
+
+
+            //Vector<double>[] errorList = new Vector<double>[inputArray.Length];
+            //Vector<double> error = Vector<double>.Build.Dense(inputArray[0].Count);
+
+            for (int i = 0; i < inputArray.Length; i++)
+            {
+                Train(inputArray[i], outputToBeArray[i], alpha);
+                //errorList[i] = outputToBeArray[i] - Predict(inputArray[i]);
+            }
+
+        }
+
+
         public void Train(Vector<double> input, Vector<double> outputToBe, double alpha = 0.1)
         {
+            if (input == null) throw new ArgumentNullException(nameof(input));
+            if (outputToBe == null) throw new ArgumentNullException(nameof(outputToBe));
+            if (input.Count != outputToBe.Count)
+                throw new ArgumentException($"Lenght of in {input.Count}/ToBe {outputToBe.Count} vectors are not equal");
+
+
             Predict(input);
             _layers.Last()._error = outputToBe - _layers.Last()._output;
             for (int i = _layers.Count - 2; i >= 0; i--)

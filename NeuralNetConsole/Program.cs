@@ -10,13 +10,13 @@ string s;
 //Layer layer;
 
 
-int inputVectorSize = 1;
+int inputVectorLenght = 1;
 neuralNet = new NeuralNet(random);
-neuralNet.AddLayer(inputVectorSize);
-neuralNet.AddLayer(1, ActivationTypes.Identity);
+neuralNet.AddLayer(lenght: inputVectorLenght);
+neuralNet.AddLayer(lenght: 1, activationType: ActivationTypes.Identity);
 
-var input = Vector<double>.Build.DenseOfArray(new double[] { inputVectorSize });
-var outputToBe = Vector<double>.Build.DenseOfArray(new double[] { inputVectorSize });
+var input = Vector<double>.Build.DenseOfArray(new double[] { inputVectorLenght });
+var outputToBe = Vector<double>.Build.DenseOfArray(new double[] { inputVectorLenght });
 StringBuilder sb = new();
 for (int i = 0; i < 100; i++)
 {
@@ -36,9 +36,6 @@ for (int i = 0; i < 100; i++)
     Console.WriteLine(sb.ToString());
 
 }
-
-
-
 
 s = JsonSerializer.Serialize(neuralNet, new JsonSerializerOptions() { WriteIndented = true }); ;
 Console.WriteLine(s);

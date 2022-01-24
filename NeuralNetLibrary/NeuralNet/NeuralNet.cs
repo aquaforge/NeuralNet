@@ -7,6 +7,8 @@ namespace NeuralNetLibrary
     {
         private Random _random;
         private LinkedList<Layer> _layers = new();
+        public int LayersCount => _layers.Count;
+
         public Vector<double> _input;
         public int InputVectorSize { get; set; } = -1;
 

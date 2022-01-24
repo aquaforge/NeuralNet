@@ -3,8 +3,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeuralNetLibrary;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace NeuralNetLibrary.Tests
@@ -25,15 +27,17 @@ namespace NeuralNetLibrary.Tests
                 else
                     neuralNet.AddLayer(lengths[i], activationTypes, weightsArray[i - 1]);
             }
+            JsonCheck(neuralNet);
             return neuralNet;
         }
 
-        private Vector<double> PredictOneValue(int[] lengths,
+        private static Vector<double> PredictOneValue(int[] lengths,
             Matrix<double>[] weightsArray, Vector<double> input,
             ActivationTypes activationTypes = ActivationTypes.Identity)
         {
 
             NeuralNet neuralNet = PrepareNet(lengths, weightsArray, activationTypes);
+            JsonCheck(neuralNet);
             return neuralNet.Predict(input);
         }
 
@@ -81,6 +85,20 @@ namespace NeuralNetLibrary.Tests
             Assert.AreEqual(1.0, d, DOUBLE_DELTA);
         }
 
+        private static string SerializeIndented(object o)
+        {
+            return JsonSerializer.Serialize(o, new JsonSerializerOptions() { WriteIndented = true });
+        }
+
+        private static void JsonCheck(NeuralNet neuralNet)
+        {
+            string s = SerializeIndented(neuralNet); 
+            NeuralNet? neuralNet2 = JsonSerializer.Deserialize<NeuralNet?>(s);
+            if (neuralNet2 == null) Assert.Fail("JsonSerializer.Deserialize failed", s);
+            string s2 = SerializeIndented(neuralNet2);
+            Assert.AreEqual(s, s2);
+        }
+
 
         [TestMethod()]
         public void TrainLastDouble02()
@@ -98,7 +116,11 @@ namespace NeuralNetLibrary.Tests
 
             neuralNet.Train(input, outputToBe);
 
-            Assert.AreEqual(0.45, neuralNet.Layers.Last().WeightsMatrixByRows[0][0],DOUBLE_DELTA);
+            string s = JsonSerializer.Serialize(neuralNet, new JsonSerializerOptions() { WriteIndented = true }); ;
+            File.WriteAllText(@"D:\Temp\net.json", s);
+
+            JsonCheck(neuralNet);
+            Assert.AreEqual(0.45, neuralNet.Layers.Last().WeightsMatrixByRows[0][0], DOUBLE_DELTA);
         }
 
     }

@@ -96,41 +96,37 @@ namespace NeuralNetLibrary.Tests
             NeuralNet neuralNet = NeuralNet.Build(lengths, weightsArray, ActivationTypes.Identity);
 
             var input = Vector<double>.Build.DenseOfArray(new double[] { 1.0 });
-            var outputToBe = Vector<double>.Build.DenseOfArray(new double[] { 1.0 });
+            var outputToBe = Vector<double>.Build.DenseOfArray(new double[] { 0.5 });
 
             neuralNet.Train(input, outputToBe);
-
             JsonCheck(neuralNet);
-            Assert.AreEqual(0.45, neuralNet.Layers.Last().WeightsMatrixByRows[0][0], DOUBLE_DELTA);
+            NeuralNet.SaveJson(@"D:\Temp\net.json", neuralNet);
+            Assert.AreEqual(0.5, neuralNet.Layers.Last().WeightsMatrixByRows[0][0], DOUBLE_DELTA);
         }
 
 
         public void TrainLastDouble03()
         {
             //https://habr.com/ru/post/313216/
-            //var lengths = new int[] { 2, 2, 1 };
-            //Matrix<double>[] weightsArray = new Matrix<double>[]
-            //{
-            //    Matrix<double>.Build.DenseOfArray(new double[,] { { 0.45, -0.12 },{ 0.78, 0.13 } }),
-            //    Matrix<double>.Build.DenseOfArray(new double[,] { { 1.5, -2.3} })
-            //};
+            var lengths = new int[] { 2, 2, 1 };
+            Matrix<double>[] weightsArray = new Matrix<double>[]
+            {
+                Matrix<double>.Build.DenseOfArray(new double[,] { { 0.45, -0.12 },{ 0.78, 0.13 } }),
+                Matrix<double>.Build.DenseOfArray(new double[,] { { 1.5, -2.3} })
+            };
 
-            //NeuralNet neuralNet = NeuralNet.Build(lengths, weightsArray, ActivationTypes.Sigmoid);
+            NeuralNet neuralNet = NeuralNet.Build(lengths, weightsArray, ActivationTypes.Sigmoid);
 
-            //var input = Vector<double>.Build.DenseOfArray(new double[] { 1.0, 0.0 });
-            //var outputToBe = Vector<double>.Build.DenseOfArray(new double[] { 1.0 });
+            var input = Vector<double>.Build.DenseOfArray(new double[] { 1.0, 0.0 });
+            var outputToBe = Vector<double>.Build.DenseOfArray(new double[] { 1.0 });
 
-            //neuralNet.Train(input, outputToBe);
-            //neuralNet.Forward(input);
+            neuralNet.Train(input, outputToBe);
+            JsonCheck(neuralNet);
             //NeuralNet.SaveJson(@"D:\Temp\net.json", neuralNet);
 
-            //StringBuilder sb = new();
-            //sb.Append($" Input={input[0]} Output={neuralNet.Layers.Last().OutputVector[0]}");
-            //sb.AppendLine();
-            //sb.Append($" ErrorMSE={neuralNet.ErrorMSE(outputToBe) * 100.0:0.00}%");
-            //sb.AppendLine();
-            //Console.WriteLine(sb.ToString());
-            //Console.WriteLine();
+            Assert.AreEqual(0.34049134000389103, neuralNet.Layers.Last().OutputVector[0], DOUBLE_DELTA);
+            Assert.AreEqual(0.14809727784386606, neuralNet.Layers.Last().DeltaVector[0], DOUBLE_DELTA);
+            Assert.AreEqual(0.49806363572805407, neuralNet.Layers.First().WeightsMatrixByRows[0][0], DOUBLE_DELTA);
         }
 
 

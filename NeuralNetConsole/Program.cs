@@ -26,21 +26,28 @@ Random random = new Random();
 
 NeuralNet neuralNet = new(random);
 neuralNet.AddLayer(1);
-neuralNet.AddLayer(1, ActivationTypes.LeakyReLU);
-for (int i = 0; i < 200; i++)
+neuralNet.AddLayer(3, ActivationTypes.Sigmoid);
+neuralNet.AddLayer(1, ActivationTypes.Sigmoid);
+Queue<double> errorsQueue = new();
+for (int i = 0; i < 10000; i++)
 {
     double d = random.NextDouble();
     var input = Vector<double>.Build.DenseOfArray(new double[] { d });
-    var outputToBe = Vector<double>.Build.DenseOfArray(new double[] { d });
+    var outputToBe = Vector<double>.Build.DenseOfArray(new double[] { d/2.0 });
 
     neuralNet.Train(input, outputToBe);
 
+    double errorMSE = neuralNet.ErrorMSE(outputToBe);
+    errorsQueue.Enqueue(errorMSE);
+
     StringBuilder sb = new();
-    sb.AppendLine($"TrainNo={i}: Weight={neuralNet.Layers.Last().WeightsMatrixByRows[0][0]}");
+    sb.AppendLine($"TrainNo={i}  ErrorMSE={errorMSE * 100.0:0.00000}%");
     sb.AppendLine($" Input={input[0]} Output={neuralNet.Layers.Last().OutputVector[0]}");
-    sb.AppendLine($" ErrorMSE={neuralNet.ErrorMSE(outputToBe) * 100.0:0.00}%");
+    //sb.AppendLine($" Weight={neuralNet.Layers.Last().WeightsMatrixByRows[0][0]}");
     sb.AppendLine();
     Console.WriteLine(sb.ToString());
+    if (errorsQueue.Average() < 0.001) break;
+    if (errorsQueue.Count > 50) errorsQueue.Dequeue();
 }
 NeuralNet.SaveJson(@"D:\Temp\net.json", neuralNet);
 Console.WriteLine(NeuralNet.SerializeJsonIndented(neuralNet));

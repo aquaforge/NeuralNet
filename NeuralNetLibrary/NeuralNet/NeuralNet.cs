@@ -117,18 +117,24 @@ namespace NeuralNetLibrary
             Forward(input);
             #endregion
 
-            #region Backward
+            #region Backward For Errors
             Layer layer;
             layer = _layers.Last();
             layer._delta = (outputToBe - layer._output)
                 .PointwiseMultiply(layer.GetActivationFunction().Deactivate(layer._input, layer._output)); ;
 
-            for (int i = _layers.Count - 2; i >= 0; i--)
+            for (int i = _layers.Count - 1; i >= 0; i--)
             {
                 layer = _layers.ElementAt(i);
-                Layer layerNext = _layers.ElementAt(i + 1);
-                layer._delta = layerNext._weights.TransposeThisAndMultiply(layerNext._delta)
-                    .PointwiseMultiply(layer.GetActivationFunction().Deactivate(layer._input, layer._output));
+                Vector<double> err;
+                if (i == _layers.Count - 1)
+                    err = outputToBe - layer._output;
+                else
+                {
+                    Layer layerNext = _layers.ElementAt(i + 1);
+                    err = layerNext._weights.TransposeThisAndMultiply(layerNext._delta);
+                }
+                layer._delta = err.PointwiseMultiply(layer.GetActivationFunction().Deactivate(layer._input, layer._output));
             }
             #endregion
 

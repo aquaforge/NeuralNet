@@ -12,6 +12,7 @@ namespace NeuralNetLibrary
         internal Vector<double> _output;
         internal Vector<double> _delta;
         internal Matrix<double> _weights;
+        internal Matrix<double> _deltaWeightsPrev;
 
         public ActivationTypes ActivationType { get; set; }
         public int Lenght => _input.Count;
@@ -23,6 +24,15 @@ namespace NeuralNetLibrary
             {
                 if (value == null) throw new ArgumentNullException(nameof(value));
                 _weights = Matrix<double>.Build.DenseOfRowArrays(value);
+            }
+        }
+        public double[][] DeltaWeightsPrevMatrixByRows
+        {
+            get { return _deltaWeightsPrev.ToRowArrays(); }
+            set
+            {
+                if (value == null) throw new ArgumentNullException(nameof(value));
+                _deltaWeightsPrev = Matrix<double>.Build.DenseOfRowArrays(value);
             }
         }
 
@@ -62,6 +72,13 @@ namespace NeuralNetLibrary
                 _weights = Matrix<double>.Build.Dense(length, prevLayerLength, (i, j) => (_random.NextDouble() - 0.5));
             else
                 _weights = Matrix<double>.Build.DenseOfMatrix(weights);
+            _deltaWeightsPrev = Matrix<double>.Build.Dense(length, prevLayerLength);
+        }
+
+        public void ClearAllButWeight()
+        {
+            ClearPrediction();
+            _deltaWeightsPrev.Clear();
         }
 
         public void ClearPrediction()

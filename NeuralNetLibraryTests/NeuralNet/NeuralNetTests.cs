@@ -108,23 +108,29 @@ namespace NeuralNetLibrary.Tests
         public void TrainLastDouble03()
         {
             //https://habr.com/ru/post/313216/
-            var lengths = new int[] { 2, 2, 1 };
-            Matrix<double>[] weightsArray = new Matrix<double>[]
-            {
-                Matrix<double>.Build.DenseOfArray(new double[2,2] { { 0.45, -0.12 },{ 0.78, 0.13 } }),
-                Matrix<double>.Build.DenseOfArray(new double[1,2] { { 0.5, 0.5} })
-            };
+            //var lengths = new int[] { 2, 2, 1 };
+            //Matrix<double>[] weightsArray = new Matrix<double>[]
+            //{
+            //    Matrix<double>.Build.DenseOfArray(new double[,] { { 0.45, -0.12 },{ 0.78, 0.13 } }),
+            //    Matrix<double>.Build.DenseOfArray(new double[,] { { 1.5, -2.3} })
+            //};
 
-            NeuralNet neuralNet = NeuralNet.Build(lengths, weightsArray, ActivationTypes.Identity);
+            //NeuralNet neuralNet = NeuralNet.Build(lengths, weightsArray, ActivationTypes.Sigmoid);
 
-            var input = Vector<double>.Build.DenseOfArray(new double[] { 1.0, 0.0 });
-            var outputToBe = Vector<double>.Build.DenseOfArray(new double[] { 1.0 });
+            //var input = Vector<double>.Build.DenseOfArray(new double[] { 1.0, 0.0 });
+            //var outputToBe = Vector<double>.Build.DenseOfArray(new double[] { 1.0 });
 
-            neuralNet.Train(input, outputToBe);
-            NeuralNet.SaveJson(@"D:\Temp\net.json", neuralNet);
+            //neuralNet.Train(input, outputToBe);
+            //neuralNet.Forward(input);
+            //NeuralNet.SaveJson(@"D:\Temp\net.json", neuralNet);
 
-            double d = PredictOneValue(lengths, weightsArray, input)[0];
-            Assert.AreEqual(1.0, d, DOUBLE_DELTA);
+            //StringBuilder sb = new();
+            //sb.Append($" Input={input[0]} Output={neuralNet.Layers.Last().OutputVector[0]}");
+            //sb.AppendLine();
+            //sb.Append($" ErrorMSE={neuralNet.ErrorMSE(outputToBe) * 100.0:0.00}%");
+            //sb.AppendLine();
+            //Console.WriteLine(sb.ToString());
+            //Console.WriteLine();
         }
 
 

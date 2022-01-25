@@ -44,6 +44,12 @@ namespace NeuralNetLibrary
         }
 
 
+        public void ClearAllButWeight()
+        {
+            _input.Clear();
+            foreach (var layer in _layers)
+                layer.ClearAllButWeight();
+        }
         public void ClearPrediction()
         {
             _input.Clear();
@@ -100,44 +106,51 @@ namespace NeuralNetLibrary
         }
 
 
-        public void Train(Vector<double> input, Vector<double> outputToBe, double alpha = 0.1)
+        public void Train(Vector<double> input, Vector<double> outputToBe, double learningVelocityEpsilon = 0.7, double momentAlpha = 0.3)
         {
             if (input == null) throw new ArgumentNullException(nameof(input));
             if (outputToBe == null) throw new ArgumentNullException(nameof(outputToBe));
             if (_layers.Last()._output.Count != outputToBe.Count)
                 throw new ArgumentException($"Lenght of out {_layers.Last()._output.Count}/ToBe {outputToBe.Count} vectors are not equal");
 
-
+            #region Forward
             Forward(input);
+            #endregion
+
+            #region Backward
             Layer layer;
-
             layer = _layers.Last();
-
             layer._delta = (outputToBe - layer._output)
                 .PointwiseMultiply(layer.GetActivationFunction().Deactivate(layer._input, layer._output)); ;
-            Console.WriteLine();
 
             for (int i = _layers.Count - 2; i >= 0; i--)
             {
                 layer = _layers.ElementAt(i);
                 Layer layerNext = _layers.ElementAt(i + 1);
-                layer._delta = layerNext._weights.TransposeThisAndMultiply(layerNext._delta);
+                layer._delta = layerNext._weights.TransposeThisAndMultiply(layerNext._delta)
+                    .PointwiseMultiply(layer.GetActivationFunction().Deactivate(layer._input, layer._output));
             }
+            #endregion
 
-            for (int i = 0; i < _layers.Count; i++)
+            #region UpdateWeights
+            for (int i = _layers.Count - 1; i >= 0; i--)
             {
+                layer = _layers.ElementAt(i);
                 Vector<double> outputPrev;
                 if (i == 0)
-                    outputPrev = _input.Clone();
+                    outputPrev = _input;
                 else
-                    outputPrev = _layers.ElementAt(i - 1)._output.Clone();
+                    outputPrev = _layers.ElementAt(i - 1)._output;
 
-                _layers.ElementAt(i).UpdateWeights(outputPrev, alpha);
+                layer._deltaWeightsPrev = learningVelocityEpsilon * layer._delta.ToColumnMatrix() * outputPrev.ToRowMatrix(); 
+                layer._deltaWeightsPrev += momentAlpha * layer._deltaWeightsPrev;
+
+                layer._weights += layer._deltaWeightsPrev;
             }
-
+            #endregion
         }
 
-        public static void SaveJson(string path, object o, bool indented = true) 
+        public static void SaveJson(string path, object o, bool indented = true)
             => File.WriteAllText(path, SerializeJsonIndented(o, indented));
 
         public static string SerializeJsonIndented(object o, bool indented = true)

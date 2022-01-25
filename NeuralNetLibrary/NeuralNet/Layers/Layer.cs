@@ -8,9 +8,9 @@ namespace NeuralNetLibrary
     {
         Random _random;
 
-        public Vector<double> _input;
-        public Vector<double> _output;
-        public Vector<double> _error;
+        internal Vector<double> _input;
+        internal Vector<double> _output;
+        internal Vector<double> _delta;
         internal Matrix<double> _weights;
 
         public ActivationTypes ActivationType { get; set; }
@@ -38,10 +38,10 @@ namespace NeuralNetLibrary
             set { _output = Vector<double>.Build.DenseOfArray(value); }
         }
 
-        public double[] ErrorVector
+        public double[] DeltaVector
         {
-            get { return _error.ToArray(); }
-            set { _error = Vector<double>.Build.DenseOfArray(value); }
+            get { return _delta.ToArray(); }
+            set { _delta = Vector<double>.Build.DenseOfArray(value); }
         }
 
         public Layer() { }
@@ -55,7 +55,7 @@ namespace NeuralNetLibrary
 
             _input = Vector<double>.Build.Dense(length);
             _output = _input.Clone();
-            _error = _input.Clone();
+            _delta = _input.Clone();
 
 
             if (weights == null)
@@ -64,11 +64,11 @@ namespace NeuralNetLibrary
                 _weights = Matrix<double>.Build.DenseOfMatrix(weights);
         }
 
-        public void Clear()
+        public void ClearPrediction()
         {
             _input.Clear();
             _output.Clear();
-            _error.Clear();
+            _delta.Clear();
         }
 
 
@@ -83,22 +83,27 @@ namespace NeuralNetLibrary
             };
         }
 
-        internal double QuadraticError(Vector<double> outputToBe)
-        {
-            Vector<double> v = (outputToBe - _output).PointwisePower(2);
-            return v.Sum();
-        }
-        internal double AbsError(Vector<double> outputToBe)=>(outputToBe - _output).PointwiseAbs().Sum();
-        
+        internal double ErrorMSE(Vector<double> outputToBe) => (outputToBe - _output).PointwisePower(2).Sum() / _output.Count;
+        //{
+        //    //for testing
+        //    Vector<double> v = (outputToBe - _output).PointwisePower(2);
+        //    return v.Sum() / _output.Count;
+        //}
+
+
+
+
+        internal double AbsError(Vector<double> outputToBe) => (outputToBe - _output).PointwiseAbs().Sum();
+
 
         public void UpdateWeights(Vector<double> outputPrev, double alpha = 0.1)
         {
             Matrix<double> delta;
             Vector<double> v;
-            v = _error.PointwiseMultiply(GetActivationFunction().Deactivate(_input, _output));
+            v = _delta.PointwiseMultiply(GetActivationFunction().Deactivate(_input, _output));
 
             Matrix<double> m1 = v.ToColumnMatrix();
-            Matrix<double> m2= outputPrev.ToRowMatrix();
+            Matrix<double> m2 = outputPrev.ToRowMatrix();
 
             //TODO
             delta = alpha * m1 * m2;

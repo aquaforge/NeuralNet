@@ -16,29 +16,16 @@ namespace NeuralNetLibrary.Tests
     {
         double DOUBLE_DELTA = 1e-5;
 
-        private static NeuralNet PrepareNet(int[] lengths, Matrix<double>[] weightsArray,
-            ActivationTypes activationTypes = ActivationTypes.Identity)
-        {
-            NeuralNet neuralNet = new();
-            for (int i = 0; i < lengths.Length; i++)
-            {
-                if (i == 0)
-                    neuralNet.AddLayer(lengths[i]);
-                else
-                    neuralNet.AddLayer(lengths[i], activationTypes, weightsArray[i - 1]);
-            }
-            JsonCheck(neuralNet);
-            return neuralNet;
-        }
+
 
         private static Vector<double> PredictOneValue(int[] lengths,
             Matrix<double>[] weightsArray, Vector<double> input,
             ActivationTypes activationTypes = ActivationTypes.Identity)
         {
 
-            NeuralNet neuralNet = PrepareNet(lengths, weightsArray, activationTypes);
+            NeuralNet neuralNet = NeuralNet.Build(lengths, weightsArray, activationTypes);
             JsonCheck(neuralNet);
-            return neuralNet.Predict(input);
+            return neuralNet.Forward(input);
         }
 
 
@@ -85,17 +72,14 @@ namespace NeuralNetLibrary.Tests
             Assert.AreEqual(1.0, d, DOUBLE_DELTA);
         }
 
-        private static string SerializeIndented(object o)
-        {
-            return JsonSerializer.Serialize(o, new JsonSerializerOptions() { WriteIndented = true });
-        }
+
 
         private static void JsonCheck(NeuralNet neuralNet)
         {
-            string s = SerializeIndented(neuralNet); 
+            string s = NeuralNet.SerializeJsonIndented(neuralNet); 
             NeuralNet? neuralNet2 = JsonSerializer.Deserialize<NeuralNet?>(s);
             if (neuralNet2 == null) Assert.Fail("JsonSerializer.Deserialize failed", s);
-            string s2 = SerializeIndented(neuralNet2);
+            string s2 = NeuralNet.SerializeJsonIndented(neuralNet2);
             Assert.AreEqual(s, s2);
         }
 
@@ -109,19 +93,40 @@ namespace NeuralNetLibrary.Tests
                 Matrix<double>.Build.DenseOfArray(new double[,] { { 0.5} })
             };
 
-            NeuralNet neuralNet = PrepareNet(lengths, weightsArray, ActivationTypes.Identity);
+            NeuralNet neuralNet = NeuralNet.Build(lengths, weightsArray, ActivationTypes.Identity);
 
             var input = Vector<double>.Build.DenseOfArray(new double[] { 1.0 });
             var outputToBe = Vector<double>.Build.DenseOfArray(new double[] { 1.0 });
 
             neuralNet.Train(input, outputToBe);
 
-            string s = JsonSerializer.Serialize(neuralNet, new JsonSerializerOptions() { WriteIndented = true }); ;
-            File.WriteAllText(@"D:\Temp\net.json", s);
-
             JsonCheck(neuralNet);
             Assert.AreEqual(0.45, neuralNet.Layers.Last().WeightsMatrixByRows[0][0], DOUBLE_DELTA);
         }
+
+
+        public void TrainLastDouble03()
+        {
+            //https://habr.com/ru/post/313216/
+            var lengths = new int[] { 2, 2, 1 };
+            Matrix<double>[] weightsArray = new Matrix<double>[]
+            {
+                Matrix<double>.Build.DenseOfArray(new double[2,2] { { 0.45, -0.12 },{ 0.78, 0.13 } }),
+                Matrix<double>.Build.DenseOfArray(new double[1,2] { { 0.5, 0.5} })
+            };
+
+            NeuralNet neuralNet = NeuralNet.Build(lengths, weightsArray, ActivationTypes.Identity);
+
+            var input = Vector<double>.Build.DenseOfArray(new double[] { 1.0, 0.0 });
+            var outputToBe = Vector<double>.Build.DenseOfArray(new double[] { 1.0 });
+
+            neuralNet.Train(input, outputToBe);
+            NeuralNet.SaveJson(@"D:\Temp\net.json", neuralNet);
+
+            double d = PredictOneValue(lengths, weightsArray, input)[0];
+            Assert.AreEqual(1.0, d, DOUBLE_DELTA);
+        }
+
 
     }
 }

@@ -1,4 +1,5 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
+using System.Text.Json;
 
 namespace NeuralNetLibrary
 {
@@ -43,21 +44,21 @@ namespace NeuralNetLibrary
         }
 
 
-        public void Clear()
+        public void ClearPrediction()
         {
             _input.Clear();
             foreach (var layer in _layers)
-                layer.Clear();
+                layer.ClearPrediction();
         }
 
 
 
-        public Vector<double> Predict(Vector<double> input)
+        public Vector<double> Forward(Vector<double> input)
         {
             if (_input is null) throw new ArgumentNullException($"Net has no Layers");
-            if (_input.Count != input.Count) throw new ArgumentException($"Predict vector length {input.Count},expected {_input.Count}");
+            if (_input.Count != input.Count) throw new ArgumentException($"Input vector length {input.Count}, expected {_input.Count}");
 
-            Clear();
+            ClearPrediction();
 
             _input = Vector<double>.Build.DenseOfVector(input);
             for (int i = 0; i < _layers.Count; i++)
@@ -68,7 +69,7 @@ namespace NeuralNetLibrary
                 if (i == 0)
                     vect = _input;
                 else
-                    vect = _layers.ElementAt(i - 1)._input;
+                    vect = _layers.ElementAt(i - 1)._output;
                 layer._input = layer._weights.Multiply(vect);
                 layer._output = layer.GetActivationFunction().Activate(layer._input);
 
@@ -79,16 +80,10 @@ namespace NeuralNetLibrary
         }
 
 
-        public double QuadraticError(Vector<double> outputToBe)
+        public double ErrorMSE(Vector<double> outputToBe)
         {
-            return Layers.Last().QuadraticError(outputToBe);
+            return Layers.Last().ErrorMSE(outputToBe);
         }
-
-        public double AbsError(Vector<double> outputToBe)
-        {
-            return Layers.Last().AbsError(outputToBe);
-        }
-
 
         public void TrainEpoch(Vector<double>[] arrayOutput, Vector<double>[] arrayOutputToBe, double alpha = 0.1)
         {
@@ -109,18 +104,24 @@ namespace NeuralNetLibrary
         {
             if (input == null) throw new ArgumentNullException(nameof(input));
             if (outputToBe == null) throw new ArgumentNullException(nameof(outputToBe));
-            if (input.Count != outputToBe.Count)
-                throw new ArgumentException($"Lenght of in {input.Count}/ToBe {outputToBe.Count} vectors are not equal");
+            if (_layers.Last()._output.Count != outputToBe.Count)
+                throw new ArgumentException($"Lenght of out {_layers.Last()._output.Count}/ToBe {outputToBe.Count} vectors are not equal");
 
 
-            Predict(input);
-            _layers.Last()._error = outputToBe - _layers.Last()._output;
+            Forward(input);
+            Layer layer;
+
+            layer = _layers.Last();
+
+            layer._delta = (outputToBe - layer._output)
+                .PointwiseMultiply(layer.GetActivationFunction().Deactivate(layer._input, layer._output)); ;
             Console.WriteLine();
+
             for (int i = _layers.Count - 2; i >= 0; i--)
             {
-                Layer layer = _layers.ElementAt(i);
+                layer = _layers.ElementAt(i);
                 Layer layerNext = _layers.ElementAt(i + 1);
-                layer._error = layerNext._weights.TransposeThisAndMultiply(layerNext._error);
+                layer._delta = layerNext._weights.TransposeThisAndMultiply(layerNext._delta);
             }
 
             for (int i = 0; i < _layers.Count; i++)
@@ -135,5 +136,28 @@ namespace NeuralNetLibrary
             }
 
         }
+
+        public static void SaveJson(string path, object o, bool indented = true) 
+            => File.WriteAllText(path, SerializeJsonIndented(o, indented));
+
+        public static string SerializeJsonIndented(object o, bool indented = true)
+            => JsonSerializer.Serialize(o, new JsonSerializerOptions() { WriteIndented = indented });
+
+        public static NeuralNet Build(int[] lengths, Matrix<double>[] weightsArray,
+            ActivationTypes activationTypes = ActivationTypes.Identity)
+        {
+            NeuralNet neuralNet = new();
+            for (int i = 0; i < lengths.Length; i++)
+            {
+                if (i == 0)
+                    neuralNet.AddLayer(lengths[i]);
+                else
+                    neuralNet.AddLayer(lengths[i], activationTypes, weightsArray[i - 1]);
+            }
+            return neuralNet;
+        }
+
+
+
     }
 }

@@ -26,14 +26,14 @@ Random random = new Random();
 
 NeuralNet neuralNet = new(random);
 neuralNet.AddLayer(1);
-neuralNet.AddLayer(3, ActivationTypes.Sigmoid);
+neuralNet.AddLayer(2, ActivationTypes.Sigmoid);
 neuralNet.AddLayer(1, ActivationTypes.Sigmoid);
 Queue<double> errorsQueue = new();
 for (int i = 0; i < 10000; i++)
 {
     double d = random.NextDouble();
     var input = Vector<double>.Build.DenseOfArray(new double[] { d });
-    var outputToBe = Vector<double>.Build.DenseOfArray(new double[] { d/2.0 });
+    var outputToBe = Vector<double>.Build.DenseOfArray(new double[] { d });
 
     neuralNet.Train(input, outputToBe);
 
@@ -46,9 +46,10 @@ for (int i = 0; i < 10000; i++)
     //sb.AppendLine($" Weight={neuralNet.Layers.Last().WeightsMatrixByRows[0][0]}");
     sb.AppendLine();
     Console.WriteLine(sb.ToString());
-    if (errorsQueue.Average() < 0.001) break;
+    if (errorsQueue.Count >10 && errorsQueue.Average() < 0.001) break;
     if (errorsQueue.Count > 50) errorsQueue.Dequeue();
 }
+neuralNet.ClearAllButWeight();
 NeuralNet.SaveJson(@"D:\Temp\net.json", neuralNet);
-Console.WriteLine(NeuralNet.SerializeJsonIndented(neuralNet));
+//Console.WriteLine(NeuralNet.SerializeJsonIndented(neuralNet));
 

@@ -57,8 +57,6 @@ namespace NeuralNetLibrary
                 layer.ClearPrediction();
         }
 
-
-
         public Vector<double> Forward(Vector<double> input)
         {
             if (_input is null) throw new ArgumentNullException($"Net has no Layers");
@@ -82,14 +80,9 @@ namespace NeuralNetLibrary
             }
 
             return Vector<double>.Build.DenseOfVector(_layers.Last()._output);
-
         }
 
-
-        public double ErrorMSE(Vector<double> outputToBe)
-        {
-            return Layers.Last().ErrorMSE(outputToBe);
-        }
+        public double ErrorMSE(Vector<double> outputToBe) => Layers.Last().ErrorMSE(outputToBe);
 
         public void TrainEpoch(Vector<double>[] arrayOutput, Vector<double>[] arrayOutputToBe, double alpha = 0.1)
         {
@@ -100,9 +93,7 @@ namespace NeuralNetLibrary
             if (arrayOutput.Length == 0) throw new ArgumentException("Epoch: nothing to train");
 
             for (int i = 0; i < arrayOutput.Length; i++)
-            {
                 Train(arrayOutput[i], arrayOutputToBe[i], alpha);
-            }
         }
 
 
@@ -148,7 +139,7 @@ namespace NeuralNetLibrary
                 else
                     outputPrev = _layers.ElementAt(i - 1)._output;
 
-                layer._deltaWeightsPrev = learningVelocityEpsilon * layer._delta.ToColumnMatrix() * outputPrev.ToRowMatrix(); 
+                layer._deltaWeightsPrev = learningVelocityEpsilon * layer._delta.ToColumnMatrix() * outputPrev.ToRowMatrix();
                 layer._deltaWeightsPrev += momentAlpha * layer._deltaWeightsPrev;
 
                 layer._weights += layer._deltaWeightsPrev;

@@ -96,39 +96,12 @@ namespace NeuralNetLibrary
                 ActivationTypes.Identity => new IdentityActivation(),
                 ActivationTypes.Sigmoid => new SigmoidActivation(),
                 ActivationTypes.LeakyReLU => new LeakyReLUActivation(),
+                ActivationTypes.Leaky2ReLUActivation => new Leaky2ReLUActivation(),
                 _ => throw new ArgumentException($"Unknown ActivationType: [{ActivationType}]"),
             };
         }
 
         internal double ErrorMSE(Vector<double> outputToBe) => (outputToBe - _output).PointwisePower(2).Sum() / _output.Count;
-        //{
-        //    //for testing
-        //    Vector<double> v = (outputToBe - _output).PointwisePower(2);
-        //    return v.Sum() / _output.Count;
-        //}
-
-
-
-
-        internal double AbsError(Vector<double> outputToBe) => (outputToBe - _output).PointwiseAbs().Sum();
-
-
-        public void UpdateWeights(Vector<double> outputPrev, double alpha = 0.1)
-        {
-            Matrix<double> delta;
-            Vector<double> v;
-            v = _delta.PointwiseMultiply(GetActivationFunction().Deactivate(_input, _output));
-
-            Matrix<double> m1 = v.ToColumnMatrix();
-            Matrix<double> m2 = outputPrev.ToRowMatrix();
-
-            //TODO
-            delta = alpha * m1 * m2;
-
-            _weights -= delta;
-
-
-        }
 
     }
 }

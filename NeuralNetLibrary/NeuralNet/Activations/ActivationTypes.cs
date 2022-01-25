@@ -4,7 +4,8 @@
     {
         Identity,
         Sigmoid,
-        LeakyReLU
+        LeakyReLU,
+        Leaky2ReLUActivation
     }
 
 }

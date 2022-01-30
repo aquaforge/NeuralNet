@@ -14,7 +14,7 @@ namespace NeuralNetLibrary.Tests
     [TestClass()]
     public class NeuralNetTests
     {
-        double DOUBLE_DELTA = 1e-5;
+        double DOUBLE_DELTA = 1e-9;
 
 
 
@@ -104,6 +104,24 @@ namespace NeuralNetLibrary.Tests
             Assert.AreEqual(0.5, neuralNet.Layers.Last().WeightsMatrixByRows[0][0], DOUBLE_DELTA);
         }
 
+
+        [TestMethod()]
+        public void EqualsTest()
+        {
+            var lengths = new int[] { 2, 2, 1 };
+            var input = Vector<double>.Build.DenseOfArray(new double[] { 1, 1 });
+            Matrix<double>[] weightsArray = new Matrix<double>[]
+            {
+                Matrix<double>.Build.DenseOfArray(new double[,] { { 0.45, -0.12 },{ 0.78, 0.13 } }),
+                Matrix<double>.Build.DenseOfArray(new double[,] { { 1.5, -2.3} })
+            };
+            NeuralNet nn1 = NeuralNet.Build(lengths, weightsArray);
+            NeuralNet nn2 = nn1.Copy();
+            Assert.AreEqual<NeuralNet>(nn1, nn2);
+
+            nn2.WeightsList(0)[0,0] += 0.05;
+            Assert.AreNotEqual<NeuralNet>(nn1, nn2);
+        }
 
         public void TrainLastDouble03()
         {

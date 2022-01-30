@@ -4,8 +4,10 @@ using System.Text.Json;
 namespace NeuralNetLibrary
 {
     [Serializable]
-    public class NeuralNet
+    public class NeuralNet : IEquatable<NeuralNet>, ICloneable
     {
+        double DOUBLE_DELTA = 1e-9;
+
         private Random _random;
         private LinkedList<Layer> _layers = new();
         public int LayersCount => _layers.Count;
@@ -28,6 +30,19 @@ namespace NeuralNetLibrary
         public NeuralNet() => _random = new Random();
 
         public NeuralNet(Random random) => _random = random;
+
+
+        /// <summary>
+        /// Direct ref link to layer weights matrix
+        /// </summary>
+        /// <param name="layerNo"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public Matrix<double> WeightsList(int layerNo)
+        {
+            if (layerNo < 0 || layerNo>=_layers.Count) throw new ArgumentOutOfRangeException(nameof(layerNo));
+            return _layers.ElementAt(layerNo)._weights;
+        }
 
 
         public void AddLayer(int lenght, ActivationTypes activationType = ActivationTypes.Sigmoid, Matrix<double>? weights = null)
@@ -167,7 +182,57 @@ namespace NeuralNetLibrary
             return neuralNet;
         }
 
+        override public bool Equals(object? obj)
+        {
+            if (obj is not NeuralNet other) return false;
+            return Equals(other);
+        }
 
+        public bool Equals(NeuralNet? other)
+        {
+            if (other == null) return false;
+
+            if (_input.Count != other._input.Count) return false;
+            if (_layers.Count != other._layers.Count) return false;
+            for (int k = 0; k < _layers.Count; k++)
+            {
+                if (_layers.ElementAt(k).ActivationType != other._layers.ElementAt(k).ActivationType) return false;
+                Matrix<double> w1 = _layers.ElementAt(k)._weights;
+                Matrix<double> w2 = other._layers.ElementAt(k)._weights;
+                if (w1 != null || w2 != null)
+                {
+                    if (w1 == null || w2 == null) return false;
+                    if (w1.RowCount != w2.RowCount) return false;
+                    if (w1.ColumnCount != w2.ColumnCount) return false;
+                    for (int i = 0; i < w1.RowCount; i++)
+                        for (int j = 0; j < w1.ColumnCount; j++)
+                            if (Math.Abs(w1[i, j] - w2[i, j]) > DOUBLE_DELTA) return false;
+                }
+            }
+            return true;
+        }
+
+
+
+        /// <summary>
+        /// provides deep copy
+        /// </summary>
+        /// <returns></returns>
+        public NeuralNet Copy()
+        {
+            NeuralNet n = new NeuralNet(_random);
+            n.AddLayer(_input.Count);
+            for (int i = 0; i < _layers.Count; i++)
+            {
+                Layer layer = _layers.ElementAt(i);
+                n.AddLayer(layer.Lenght, layer.ActivationType, layer._weights);
+            }
+            return n;
+
+        }
+        public object Clone() => (object)this.Copy();
+
+        public override string ToString() => JsonSerializer.Serialize(this);
 
     }
 }
